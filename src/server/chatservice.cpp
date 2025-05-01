@@ -158,7 +158,7 @@ void  ChatService::reset() {
 
 
 void ChatService::oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time) {
-    int toid = js["to"].get<int>();
+    int toid = js["toid"].get<int>();
 
     {
         lock_guard<mutex> lock(_connMutex);
@@ -180,10 +180,21 @@ void ChatService::addFriend(const TcpConnectionPtr& conn, json& js, Timestamp ti
     int friendid = js["friendid"].get<int>();
 
     User user = _userModel.query(friendid);
-    if(user.getId() == -1)  { conn->send("user is not exit!\n"); }
-
-    _friendModel.insert(userid, friendid);
-    conn->send("friend add success!\n");
+    if(user.getId() == -1)  { 
+        json response;
+        response["msgid"] = ADD_FRIEND_MSG_ACK;
+        response["errno"] = 3;
+        response["errmsg"] = "user not exit";
+        conn->send(response.dump());
+    }
+    else {
+        _friendModel.insert(userid, friendid);
+        json response;
+        response["msgid"] = ADD_FRIEND_MSG_ACK;
+        response["errno"] = 0;
+        response["errmsg"] = "add friend success!";
+        conn->send(response.dump());
+    }
 }
 
 

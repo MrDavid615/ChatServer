@@ -12,6 +12,7 @@ enum EnMsgType {
     REG_MSG_ACK,     // 注册响应消息
     ONE_CHAT_MSG,
     ADD_FRIEND_MSG, //  添加好友消息
+    ADD_FRIEND_MSG_ACK,
 
     CREATE_GROUP_MSG,
     ADD_GROUP_MSG,
@@ -39,7 +40,7 @@ enum EnMsgType {
 /* ONE_CHAT_MSG {
 "id" : 1
 "from" : "zhang san"
-"to" : 3
+"toid" : 3
 "msg" : "hello"
 }
 
