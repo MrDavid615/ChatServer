@@ -44,8 +44,8 @@ bool MySQL::update(string sql)
 {
     if (mysql_query(_conn, sql.c_str()))
     {
-        LOG_INFO << __FILE__ << ":" << __LINE__ << ":"
-                    << sql << "更新失败!";
+        LOG_ERROR << __FILE__ << ":" << __LINE__ << ":"
+                    << sql << "update fail!";
         return false;
     }
     return true;
@@ -56,8 +56,8 @@ MYSQL_RES* MySQL::query(string sql)
 {
     if (mysql_query(_conn, sql.c_str()))
     {
-        LOG_INFO << __FILE__ << ":" << __LINE__ << ":"
-                    << sql << "查询失败!";
+        LOG_ERROR << __FILE__ << ":" << __LINE__ << ":"
+                    << sql << "query fail!";
         return nullptr;
     }
     return mysql_use_result(_conn);

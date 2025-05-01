@@ -77,17 +77,17 @@ void doLoginResponse(json &responsejs)
                 group.setName(grpjs["groupname"]);
                 group.setDesc(grpjs["groupdesc"]);
 
-                vector<string> vec2 = grpjs["users"];
-                for (string &userstr : vec2)
-                {
-                    GroupUser user;
-                    json js = json::parse(userstr);
-                    user.setId(js["id"].get<int>());
-                    user.setName(js["name"]);
-                    user.setState(js["state"]);
-                    user.setRole(js["role"]);
-                    group.getUsers().push_back(user);
-                }
+                // vector<string> vec2 = grpjs["users"];
+                // for (string &userstr : vec2)
+                // {
+                //     GroupUser user;
+                //     json js = json::parse(userstr);
+                //     user.setId(js["id"].get<int>());
+                //     user.setName(js["name"]);
+                //     user.setState(js["state"]);
+                //     user.setRole(js["role"]);
+                //     group.getUsers().push_back(user);
+                // }
 
                 g_currentUserGroupList.push_back(group);
             }
@@ -167,7 +167,9 @@ void readTaskHandler(int clientfd)
             continue;
         }
 
-        if (ADD_FRIEND_MSG_ACK == msgtype)
+        if (CREATE_GROUP_MSG_ACK == msgtype || 
+            ADD_GROUP_MSG_ACK == msgtype    ||
+            ADD_FRIEND_MSG_ACK == msgtype   )
         {
             cout<< js["errmsg"] << endl;
             continue;
@@ -185,7 +187,10 @@ void showCurrentUserData()
     {
         for (User &user : g_currentUserFriendList)
         {
-            cout << user.getId() << " " << user.getName() << " " << user.getState() << endl;
+            cout << " Friend id : "    <<user.getId() 
+                 << " Friend name : "  << user.getName() 
+                 << " Friend state : " << user.getState() 
+                 << endl;
         }
     }
     cout << "----------------------group list----------------------" << endl;
@@ -193,12 +198,16 @@ void showCurrentUserData()
     {
         for (Group &group : g_currentUserGroupList)
         {
-            cout << group.getId() << " " << group.getName() << " " << group.getDesc() << endl;
-            for (GroupUser &user : group.getUsers())
-            {
-                cout << user.getId() << " " << user.getName() << " " << user.getState()
-                     << " " << user.getRole() << endl;
-            }
+            cout << " Group id :"    << group.getId()
+                 << " Group Name : " << group.getName()
+                 << " Group Desc : " << group.getDesc()
+                 << endl;
+                 
+            // for (GroupUser &user : group.getUsers())
+            // {
+            //     cout << user.getId() << " " << user.getName() << " " << user.getState()
+            //          << " " << user.getRole() << endl;
+            // }
         }
     }
     cout << "======================================================" << endl;

@@ -88,6 +88,20 @@ void ChatService::login(const TcpConnectionPtr& conn, json& js, Timestamp time) 
                 response["friends"] = vec2;
             }
 
+            // 查询用户所在群组信息
+            vector<Group> groupVec = _groupModel.queryGroups(user.getId());
+            if(!groupVec.empty()) {
+                vector<string> vec3;
+                for(auto group : groupVec) {
+                    json js;
+                    js["id"] = group.getId();
+                    js["groupname"] = group.getName();
+                    js["groupdesc"] = group.getDesc();
+                    vec3.push_back(js.dump());
+                }
+                response["groups"] = vec3;
+            }
+
             conn->send(response.dump());
         }
     }
@@ -155,8 +169,7 @@ void  ChatService::reset() {
     _userModel.resetState();
 }
 
-
-
+// 聊天服务
 void ChatService::oneChat(const TcpConnectionPtr& conn, json& js, Timestamp time) {
     int toid = js["toid"].get<int>();
 
@@ -201,14 +214,24 @@ void ChatService::addFriend(const TcpConnectionPtr& conn, json& js, Timestamp ti
 // 创建群组
 void ChatService::createGroup(const TcpConnectionPtr& conn, json& js, Timestamp time) {
     int userid = js["id"].get<int>();
-    string name = js["name"];
-    string desc = js["desc"];
+    string name = js["groupname"];
+    string desc = js["groupdesc"];
     Group group(-1, name, desc);
     if(_groupModel.createGroup(group)) {
         _groupModel.addGroup(userid, group.getId(), "creator");
-        conn->send("group creator success!\n");
+        json response;
+        response["msgid"] = CREATE_GROUP_MSG_ACK;
+        response["errno"] = 0;
+        response["errmsg"] = "create group success!";
+        conn->send(response.dump());
     }
-    conn->send("group creator fail!\n");
+    else {
+        json response;
+        response["msgid"] = CREATE_GROUP_MSG_ACK;
+        response["errno"] = 4;
+        response["errmsg"] = "create group fail!";
+        conn->send(response.dump());
+    }
 }
 
 // 加入群组
@@ -216,13 +239,17 @@ void ChatService::addGroup(const TcpConnectionPtr& conn, json& js, Timestamp tim
     int userid = js["id"].get<int>();
     int groupid = js["groupid"].get<int>();
     _groupModel.addGroup(userid, groupid, "normal");
-    conn->send("group add success!\n");
+    json response;
+    response["msgid"] = ADD_GROUP_MSG_ACK;
+    response["errno"] = 0;
+    response["errmsg"] = "join group success!";
+    conn->send(response.dump());
 }
 
 // 群组聊天
 void ChatService::groupChat(const TcpConnectionPtr& conn, json& js, Timestamp time) {
     int userid = js["id"].get<int>();
-    int groupid = js["group"].get<int>();
+    int groupid = js["groupid"].get<int>();
     vector<int> useridVec = _groupModel.queryGroupUsers(userid, groupid);
 
     lock_guard<mutex> lock(_connMutex);

@@ -32,11 +32,14 @@ void GroupModel::addGroup(int userid, int groupid, string role)
             groupid, userid, role.c_str());
 
     MySQL mysql;
-    if (mysql.connect())
-    {
-        mysql.update(sql);
+    if (mysql.connect()) {
+        if(mysql.update(sql)) LOG_INFO << "add to group success";
+        else LOG_ERROR << "add to group fail";
     }
-    LOG_ERROR << "add to group fail";
+    else {
+        LOG_ERROR << "mysql connect fail!";
+    }
+    
 }
 
 // 查询用户所在群组信息
