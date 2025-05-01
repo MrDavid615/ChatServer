@@ -24,7 +24,7 @@ bool GroupModel::createGroup(Group &group)
 }
 
 // 加入群组
-void GroupModel::addGroup(int userid, int groupid, string role)
+bool GroupModel::addGroup(int userid, int groupid, string role)
 {
     // 1.组装sql语句
     char sql[1024] = {0};
@@ -33,13 +33,16 @@ void GroupModel::addGroup(int userid, int groupid, string role)
 
     MySQL mysql;
     if (mysql.connect()) {
-        if(mysql.update(sql)) LOG_INFO << "add to group success";
+        if(mysql.update(sql)) {
+            LOG_INFO << "add to group success";
+            return true;
+        }
         else LOG_ERROR << "add to group fail";
     }
     else {
         LOG_ERROR << "mysql connect fail!";
     }
-    
+    return false;
 }
 
 // 查询用户所在群组信息

@@ -1,4 +1,5 @@
 #include "chatclient.hpp"
+#include <set>
 
 // 记录当前系统登录的用户信息
 User g_currentUser;
@@ -6,10 +7,12 @@ User g_currentUser;
 vector<User> g_currentUserFriendList;
 // 记录当前登录用户的群组列表信息
 vector<Group> g_currentUserGroupList;
+// 快速记录用户加入的群组，减少对数据库的查询
+set<int> groupBuff;
+
 
 // 控制主菜单页面程序
 bool isMainMenuRunning = false;
-
 // 用于读写线程之间的通信
 sem_t rwsem;
 // 记录登录状态
@@ -90,6 +93,7 @@ void doLoginResponse(json &responsejs)
                 // }
 
                 g_currentUserGroupList.push_back(group);
+                groupBuff.insert(grpjs["id"].get<int>());
             }
         }
 
@@ -167,10 +171,27 @@ void readTaskHandler(int clientfd)
             continue;
         }
 
-        if (CREATE_GROUP_MSG_ACK == msgtype || 
-            ADD_GROUP_MSG_ACK == msgtype    ||
-            ADD_FRIEND_MSG_ACK == msgtype   )
+        if (ADD_FRIEND_MSG_ACK == msgtype)
         {
+            cout<< js["errmsg"] << endl;
+            continue;
+        }
+
+        if (CREATE_GROUP_MSG_ACK == msgtype)
+        {
+            // cout << "OK" <<endl;
+            if(js["errno"].get<int>() == 0) {
+                groupBuff.insert(js["groupid"].get<int>());
+            }
+            cout<< js["errmsg"] << endl;
+            continue;
+        }
+
+        if (ADD_GROUP_MSG_ACK == msgtype)
+        {
+            if(js["errno"].get<int>() == 0) {
+                groupBuff.insert(js["groupid"].get<int>());
+            }
             cout<< js["errmsg"] << endl;
             continue;
         }
@@ -180,9 +201,9 @@ void readTaskHandler(int clientfd)
 // 显示当前登录成功用户的基本信息
 void showCurrentUserData()
 {
-    cout << "======================login user======================" << endl;
+    cout << "==========================login user==========================" << endl;
     cout << "current login user => id:" << g_currentUser.getId() << " name:" << g_currentUser.getName() << endl;
-    cout << "----------------------friend list---------------------" << endl;
+    cout << "--------------------------friend list-------------------------" << endl;
     if (!g_currentUserFriendList.empty())
     {
         for (User &user : g_currentUserFriendList)
@@ -193,7 +214,7 @@ void showCurrentUserData()
                  << endl;
         }
     }
-    cout << "----------------------group list----------------------" << endl;
+    cout << "--------------------------group list--------------------------" << endl;
     if (!g_currentUserGroupList.empty())
     {
         for (Group &group : g_currentUserGroupList)
@@ -210,7 +231,7 @@ void showCurrentUserData()
             // }
         }
     }
-    cout << "======================================================" << endl;
+    cout << "==============================================================" << endl;
 }
 
 // "help" command handler
@@ -389,6 +410,11 @@ void groupchat(int clientfd, string str)
     }
 
     int groupid = atoi(str.substr(0, idx).c_str());
+    if(groupBuff.find(groupid) == groupBuff.end()) {
+        cout << "You are not in this group[" << groupid <<"]" << endl;
+        return;
+    }
+
     string message = str.substr(idx + 1, str.size() - idx);
 
     json js;

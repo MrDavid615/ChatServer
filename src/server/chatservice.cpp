@@ -234,6 +234,7 @@ void ChatService::createGroup(const TcpConnectionPtr& conn, json& js, Timestamp 
         json response;
         response["msgid"] = CREATE_GROUP_MSG_ACK;
         response["errno"] = 0;
+        response["groupid"] = group.getId();
         response["errmsg"] = "create group success!";
         conn->send(response.dump());
     }
@@ -250,12 +251,20 @@ void ChatService::createGroup(const TcpConnectionPtr& conn, json& js, Timestamp 
 void ChatService::addGroup(const TcpConnectionPtr& conn, json& js, Timestamp time) {
     int userid = js["id"].get<int>();
     int groupid = js["groupid"].get<int>();
-    _groupModel.addGroup(userid, groupid, "normal");
-    json response;
-    response["msgid"] = ADD_GROUP_MSG_ACK;
-    response["errno"] = 0;
-    response["errmsg"] = "join group success!";
-    conn->send(response.dump());
+    if(_groupModel.addGroup(userid, groupid, "normal")) {
+        json response;
+        response["msgid"] = ADD_GROUP_MSG_ACK;
+        response["errno"] = 0;
+        response["groupid"] = groupid;
+        response["errmsg"] = "join group success!";
+        conn->send(response.dump());
+    }
+    else {
+        json response;
+        response["msgid"] = ADD_GROUP_MSG_ACK;
+        response["errno"] = 5;
+        response["errmsg"] = "join group fail!";
+    }
 }
 
 // 群组聊天
