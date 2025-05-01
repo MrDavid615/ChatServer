@@ -29,6 +29,9 @@ public:
     // 登录业务
     void login(const TcpConnectionPtr& conn, json& js, Timestamp time);
 
+    // 注销业务
+    void loginOut(const TcpConnectionPtr& conn, json& js, Timestamp time);
+
     // 注册业务
     void reg(const TcpConnectionPtr& conn, json& js, Timestamp time);
 

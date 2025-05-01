@@ -26,6 +26,7 @@ MsgHandler ChatService::getHandler(int msgid) {
 
 ChatService::ChatService() {
     this->_msgHandlerMap.emplace(LOGIN_MSG, std::bind(&ChatService::login, this, _1, _2, _3));
+    this->_msgHandlerMap.emplace(LOGINOUT_MSG, std::bind(&ChatService::loginOut, this, _1, _2, _3));
     this->_msgHandlerMap.emplace(REG_MSG, std::bind(&ChatService::reg, this, _1, _2, _3));
     this->_msgHandlerMap.emplace(ONE_CHAT_MSG, std::bind(&ChatService::oneChat, this, _1, _2, _3));
     this->_msgHandlerMap.emplace(ADD_FRIEND_MSG, std::bind(&ChatService::addFriend, this, _1, _2, _3));
@@ -112,6 +113,17 @@ void ChatService::login(const TcpConnectionPtr& conn, json& js, Timestamp time) 
         response["errmsg"] = "用户名或密码错误";
         conn->send(response.dump());
     }
+}
+
+void ChatService::loginOut(const TcpConnectionPtr& conn, json& js, Timestamp time) {
+    int userid = js["id"].get<int>();
+    User user(userid);
+    _userModel.updateState(user);
+    {
+        lock_guard<mutex> lock(_connMutex);
+        _userConnMap.erase(userid);
+    }
+    // conn->connectDestroyed();
 }
 
 // 注册业务

@@ -57,7 +57,7 @@ MYSQL_RES* MySQL::query(string sql)
     if (mysql_query(_conn, sql.c_str()))
     {
         LOG_ERROR << __FILE__ << ":" << __LINE__ << ":"
-                    << sql << "query fail!";
+                    << sql << "query!";
         return nullptr;
     }
     return mysql_use_result(_conn);

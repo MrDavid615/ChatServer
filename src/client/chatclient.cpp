@@ -296,7 +296,7 @@ void help(int, string)
 void addfriend(int clientfd, string str)
 {
     int friendid = atoi(str.c_str());
-    cout << "friendid = " << friendid << endl;
+    // cout << "friendid = " << friendid << endl;
     json js;
     js["msgid"] = ADD_FRIEND_MSG;
     js["id"] = g_currentUser.getId();
@@ -409,20 +409,20 @@ void groupchat(int clientfd, string str)
 // "loginout" command handler
 void loginout(int clientfd, string)
 {
-//     json js;
-//     js["msgid"] = LOGINOUT_MSG;
-//     js["id"] = g_currentUser.getId();
-//     string buffer = js.dump();
+    json js;
+    js["msgid"] = LOGINOUT_MSG;
+    js["id"] = g_currentUser.getId();
+    string buffer = js.dump();
 
-//     int len = send(clientfd, buffer.c_str(), strlen(buffer.c_str()) + 1, 0);
-//     if (-1 == len)
-//     {
-//         cerr << "send loginout msg error -> " << buffer << endl;
-//     }
-//     else
-//     {
-//         isMainMenuRunning = false;
-//     }   
+    int len = send(clientfd, buffer.c_str(), strlen(buffer.c_str()) + 1, 0);
+    if (-1 == len)
+    {
+        cerr << "send loginout msg error -> " << buffer << endl;
+    }
+    else
+    {
+        isMainMenuRunning = false;
+    }   
 }
 
 // 获取系统时间（聊天信息需要添加时间信息）

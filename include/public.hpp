@@ -19,6 +19,8 @@ enum EnMsgType {
     ADD_GROUP_MSG,
     ADD_GROUP_MSG_ACK,
     GROUP_CHAT_MSG,
+
+    LOGINOUT_MSG,
 };
 
 
