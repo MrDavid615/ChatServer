@@ -4,14 +4,13 @@ using namespace std;
 
 Redis::Redis()
     : _publish_context(nullptr), _subcribe_context(nullptr)
-{
-}
+{ }
 
 Redis::~Redis()
 {
     if (_publish_context != nullptr)
     {
-        redisFree(_publish_context);
+        redisFree(_publish_context);    // 释放资源
     }
 
     if (_subcribe_context != nullptr)

@@ -7,6 +7,7 @@
 #include "offlinemessagemodel.hpp"
 #include "friendmodel.hpp"
 #include "groupmodel.hpp"
+#include "redis.hpp"
 
 #include <mutex>
 #include <muduo/net/TcpConnection.h>
@@ -59,6 +60,8 @@ public:
     // 处理服务器异常退出
     void reset();
 
+    void handleRedisSubscribeMessage(int, string);
+
 private:
     ChatService();  // 单例模式需要私有化构造函数
 
@@ -76,6 +79,9 @@ private:
     OfflineMsgModel _offlineMsgModel;
     FriendModel _friendModel;
     GroupModel _groupModel;
+
+    // Redis中间件操作对象
+    Redis _redis;
 };
 
 #endif
